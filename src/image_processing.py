@@ -48,7 +48,7 @@ class BallTracking(object):
         else:
             if self.frame:
                 self.watch(frame, dilation)
-
+            return 0, 0
 
     @staticmethod
     def watch(frame, dilation):
@@ -64,13 +64,13 @@ if __name__ == '__main__':
     cap = cv2.VideoCapture(0)
     cap.set(propId=3, value=640)
     cap.set(propId=4, value=480)
-    ballTracking = BallTracking(cap, watch=False, color="neon_yellow")
+    ballTracking = BallTracking(cap, watch=True, color="neon_yellow")
 
     while True:
         coordinates = ballTracking.get_coordinates()
         print(coordinates)
 
-        key = cv2.waitKey(1) & 0xFF
+        key = cv2.waitKey(5) & 0xFF
         if key == 27:
             ballTracking.stop()
             break
