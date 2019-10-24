@@ -30,6 +30,7 @@ class ModbusClient(object):
         builder.add_32bit_float(value)
         payload = builder.build()
         result = self.client.write_register(address, payload, skip_encode=True, unit=1)
+        return result
 
     def read_int(self, address=12288, size=1):
 
@@ -56,4 +57,3 @@ if __name__ == '__main__':
     client.write_int(value=69, address=12288)
     while client.is_connected():
         print(client.read_int(address=12288))
-        print(client.read_float(address=12290))
