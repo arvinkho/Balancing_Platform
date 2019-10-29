@@ -23,24 +23,22 @@ addresses = {
 
 # Main loop
 if __name__ == '__main__':
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
     cap.set(propId=3, value=640)
     cap.set(propId=4, value=480)
 
     # Create objects
 
     client = ModbusClient()
-    ball_tracking = BallTracking(capture=cap, watch=True, color="red")
+    ball_tracking = BallTracking(capture=cap, watch=True, color="pink")
 
     # Send data over Modbus while the Modbus connection is active
     while client.is_connected():
         ball_coordinates = ball_tracking.get_coordinates()
         client.write_int(value=ball_coordinates[0], address=addresses['Ball X'])
         client.write_int(value=ball_coordinates[1], address=addresses['Ball Y'])
-        print(ball_coordinates[0])
-        print(ball_coordinates[1])
-
-        key = cv2.waitKey(100) & 0xFF
+        
+        key = cv2.waitKey(10) & 0xFF
         # If the escape key is pressed, stop the ball tracking.
         if key == 27:
             ball_tracking.stop()

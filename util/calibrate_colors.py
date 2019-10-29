@@ -78,8 +78,8 @@ while True:
     cv2.imshow("mask", dilation)
     key = cv2.waitKey(100) & 0xFF
     if key == 27:
-        print("Lower colors (HSV): " + lower_color)
-        print("Upper colors (HSV): " + upper_color)
+        print("Lower colors (HSV): " + str(lower_color))
+        print("Upper colors (HSV): " + str(upper_color))
         break
 
 
