@@ -45,7 +45,7 @@ class BallTracking(object):
             self.lower_color = np.array([0, 42, 142])
             self.upper_color = np.array([13, 255, 255])
         elif color == "pink":
-            self.lower_color = np.array([167, 85, 142])
+            self.lower_color = np.array([156, 34, 119])
             self.upper_color = np.array([179, 255, 255])
 
     def get_coordinates(self):
@@ -60,10 +60,10 @@ class BallTracking(object):
         """
         _, frame = self.cap.read()
 
-        roi = frame[15:360, 90:480]
+        roi = frame[71:457, 102:531]
         frame = cv2.bitwise_and(roi, roi)
 
-        blurred = cv2.GaussianBlur(frame, (11, 11), 0)
+        blurred = cv2.GaussianBlur(frame, (5, 5), 0)
         hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
 
         mask = cv2.inRange(hsv, self.lower_color, self.upper_color)
@@ -123,7 +123,7 @@ if __name__ == '__main__':
         coordinates = ballTracking.get_coordinates()
         print(coordinates)
 
-        key = cv2.waitKey(5) & 0xFF
+        key = cv2.waitKey(50) & 0xFF
         if key == 27:
             ballTracking.stop()
             break
