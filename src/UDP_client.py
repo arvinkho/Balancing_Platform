@@ -1,7 +1,6 @@
 import socket
 import sys
 import json
-import numpy as np
 
 # Create a UDP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -14,17 +13,16 @@ class UDP_Client():
         # Create a UDP socket
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.server_address = ('localhost', 1337)
-    def send_data_to_Astar(self,start,goal,maze):
+
+
+    def send_data_to_Astar(self, maze, start, goal):
         try:
 
             # Send data
             maze = maze.tolist()
-            data = {}
-
-            data["start"] = start
-            data["goal"] = goal
-            data["maze"] = maze
+            data = {'start': start, 'goal' : goal, 'maze': maze}
             json_data = json.dumps(data)
+
             print(json_data)
             sock.sendto(json_data.encode(), server_address)
             # Receive response

@@ -9,7 +9,6 @@ Modbus TCP. Sends and receives data.
 @DATE: 2019-10-24
 """
 
-
 from pymodbus.client.sync import ModbusTcpClient
 from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadBuilder

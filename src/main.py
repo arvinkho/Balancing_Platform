@@ -21,10 +21,14 @@ from maze_finder import Maze_Finder
 addresses = {
     'Ball X': 12288,
     'Ball Y': 12290,
-    'Point X': 12292,
-    'Point Y': 12294,
+    'set point X': 12292,
+    'set point Y': 12294,
+    'in position': 12296
 }
 dimentions = 640, 480
+
+
+
 # Main loop
 if __name__ == '__main__':
     cap = cv2.VideoCapture(0)
@@ -37,31 +41,29 @@ if __name__ == '__main__':
     ball_tracking = BallTracking(capture=cap, watch=True, color="pink")
     maze_finding = Maze_Finder()
     UDP_Client = UDP_Client()
+
+
     # get a path from the astar algorythm and send path to plc
-    path = maze_finding.findPath(False, cap, dimentions, ball_tracking.get_coordinates(),
+    path = maze_finding.findPath(UDP_Client, cap, ball_tracking.get_coordinates(),
                                  (dimentions[0] - 1, dimentions[1] - 1))
-    last_vector = [path[0], path[1]]
-    last_point = path[0]
-    vectors = [(last_vector)]
-    i = 0
-    newPath = [path[0]]
-    for points in path:
-        if (last_vector[0][0] - last_vector[1][0]) / (last_vector[0][1] - last_vector[1][1]) == \
-                (last_vector[0][0] - points[0]) / (last_vector[0] - [1] - points[1]):
-            vectors[i][1] = points
-        else:
-            vectors.append((last_point)(points))
-            last_vector = ((last_point)(points))
-            newPath.append(points)
-        last_point = points
-    print(vectors)
+    client.write_int(value=path[0][0], address=['set point X'])
+    client.write_int(value=path[0][1], address=['set point Y'])
 
     # Send data over Modbus while the Modbus connection is active
+    i=1
+    last_pos_state = client.read_int(addresses['in position'])
     while client.is_connected():
         ball_coordinates = ball_tracking.get_coordinates()
         client.write_int(value=ball_coordinates[0], address=addresses['Ball X'])
         client.write_int(value=ball_coordinates[1], address=addresses['Ball Y'])
 
+        if client.read_int(addresses['in position']) is not last_pos_state:
+            print(path[i])
+            client.write_int(value=path[i][0], address=addresses['set point X'])
+            client.write_int(value=path[i][1], address=addresses['set point Y'])
+            i += 1
+
+        last_pos_state = client.read_int(addresses['in position'])
         key = cv2.waitKey(10) & 0xFF
         # If the escape key is pressed, stop the ball tracking.
         if key == 27:
