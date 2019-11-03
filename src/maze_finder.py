@@ -1,10 +1,8 @@
 import cv2
 import numpy as np
 import argparse as arp
-import path3_1 as path
 import time
 import math
-import path3 as AStar
 """ locates a maze in a spesific collor and sends it to a pathfinding server, then it returns the resulting path"""
 class Maze_Finder:
     def findPath(self, show,cap, dimentions,ballPos,goalPos):
@@ -13,8 +11,8 @@ class Maze_Finder:
         hsv = cv2.cvtColor(frame, cv2.COLOR_HSV2BGR)
 
         #find the countrours
-        smalColor = np.array([00, 0, 0])
-        bigColor = np.array([255, 255, 254])
+        smalColor = np.array([93, 68, 42])
+        bigColor = np.array([117, 255, 255])
         blured = cv2.GaussianBlur(hsv,(5,5),5)
         mask = cv2.inRange(blured, smalColor, bigColor)
         contours, hirarky = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -31,6 +29,7 @@ class Maze_Finder:
         if(cv2.getTrackbarPos("col7","frame5") == 1):
             white = cv2.resize(white,(100,100))
             path = client.send_data_to_Astar(white,ballPos,goalPos)
-            resizedPath = ([tuple([point[0]*dimentions[0], point[1]*dimentions[1]]) for point in path])
+            resizedPath = ([tuple([point[0]*(dimentions[0]/100), point[1]*dimentions[1]/100]) for point in path])
+            int(3)
             if resizedPath != None:
                 return resizedPath

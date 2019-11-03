@@ -38,11 +38,22 @@ if __name__ == '__main__':
     UDP_Client = UDP_Client()
     # get a path from the astar algorythm and send path to plc
     path = maze_finding.findPath(False,cap,dimentions,ball_tracking.get_coordinates(), (dimentions[0]-1, dimentions[1]-1))
+    last_vector =[path[0],path[1]]
+    last_point= path[0]
+    vectors= [(last_vector)]
+    i=0
+    newPath =[path[0]]
     for points in path:
-        x= points[0]
-        y= points[1]
-        client.write_int(value=x,address=addresses['Point X'])
-        client.write_int(value=y,address=addresses['Point Y'])
+        if (last_vector[0][0]-last_vector[1][0])/(last_vector[0][1]-last_vector[1][1])==(last_vector[0][0]-points[0])/(last_vector[0]-[1]-points[1]):
+            vectors[i][1]=points
+        else:
+            vectors.append((last_point)(points))
+            last_vector=((last_point)(points))
+            newPath.append(points)
+        last_point = points
+    print(vectors)
+
+
     # Send data over Modbus while the Modbus connection is active
     while client.is_connected():
         ball_coordinates = ball_tracking.get_coordinates()
