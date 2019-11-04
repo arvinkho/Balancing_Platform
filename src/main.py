@@ -25,13 +25,13 @@ addresses = {
     'set point Y': 12294,
     'in position': 12296
 }
-dimentions = 640, 480
+dimentions = (640, 480)
 
 
 
 # Main loop
 if __name__ == '__main__':
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     cap.set(propId=3, value=dimentions[0])
     cap.set(propId=4, value=dimentions[1])
 
@@ -44,10 +44,11 @@ if __name__ == '__main__':
 
 
     # get a path from the astar algorythm and send path to plc
-    path = maze_finding.findPath(UDP_Client, cap, ball_tracking.get_coordinates(),
-                                 (dimentions[0] - 1, dimentions[1] - 1))
-    client.write_int(value=path[0][0], address=['set point X'])
-    client.write_int(value=path[0][1], address=['set point Y'])
+    path = maze_finding.findPath(UDP_Client, cap, tuple(ball_tracking.get_coordinates()),
+                                 (350, 350))
+
+    client.write_int(value=path[0][0], address=addresses['set point X'])
+    client.write_int(value=path[0][1], address=addresses['set point Y'])
 
     # Send data over Modbus while the Modbus connection is active
     i=1
@@ -57,14 +58,16 @@ if __name__ == '__main__':
         client.write_int(value=ball_coordinates[0], address=addresses['Ball X'])
         client.write_int(value=ball_coordinates[1], address=addresses['Ball Y'])
 
-        if client.read_int(addresses['in position']) is not last_pos_state:
+        if client.read_int(addresses['in position'])!= last_pos_state:
             print(path[i])
-            client.write_int(value=path[i][0], address=addresses['set point X'])
-            client.write_int(value=path[i][1], address=addresses['set point Y'])
+            client.write_int(value=path[i][1], address=addresses['set point X'])
+            client.write_int(value=path[i][0], address=addresses['set point Y'])
             i += 1
+        else:
+            print("not reached ")
 
         last_pos_state = client.read_int(addresses['in position'])
-        key = cv2.waitKey(10) & 0xFF
+        key = cv2.waitKey(50) & 0xFF
         # If the escape key is pressed, stop the ball tracking.
         if key == 27:
             ball_tracking.stop()

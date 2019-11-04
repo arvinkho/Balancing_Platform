@@ -5,11 +5,9 @@ import numpy as np
 
 
 class Maze_Finder:
-    def findPath(self,client, cap, ballPos, goalPos):
-
+    def findPath(self, client, cap, ballPos, goalPos):
 
         dimentions = (400, 400)
-
 
         # get the frame and set the collors
         _, frame = cap.read()
@@ -27,7 +25,7 @@ class Maze_Finder:
         # sort the countrours and discard the smalest ones.
         sortedContour = []
         for contour in contours:
-            if cv2.contourArea(contour) > 250:
+            if cv2.contourArea(contour) > 10:
                 sortedContour.append(contour)
         cv2.drawContours(frame, sortedContour, -1, (0, 255, 0), thickness=1)
 
@@ -39,18 +37,22 @@ class Maze_Finder:
         # send the maze to the pathfinding and return the result if anny
         white = cv2.resize(white, (100, 100))
 
-        print(type(white))
-
-        ballPos = (ints % 4 for ints in ballPos)
-        goalPos = (ints % 4 for ints in goalPos)
+        ballPos = ([integer // 4 for integer in ballPos])
+        goalPos = ([integer // 4 for integer in goalPos])
 
         path = client.send_data_to_Astar(white, ballPos, goalPos)
-        resizedPath = ([
-            tuple([point[0] * (dimentions[0] / 100), point[1] * (dimentions[1] / 100)]) for point in path])
-        if not resizedPath is None:
-            return (self.reduce_path(),resizedPath)
 
-        """finds all points on the same line and simplifies the path to only points that are not on the same line"""
+        resizedPath = ([
+            tuple([int(point[0] * (dimentions[0] / 100)), int(point[1] * (dimentions[1] / 100))]) for point in path])
+
+        cv2.imshow("frame", frame)
+        cv2.imshow("frame1", white)
+        if not resizedPath is None:
+            resizedPath.reverse()
+            print(resizedPath)
+            return (resizedPath)
+
+    '''finds all points on the same line and simplifies the path to only points that are not on the same line'''
 
     def reduce_path(self, path):
         last_vector = [path[0], path[1]]
@@ -60,7 +62,7 @@ class Maze_Finder:
         newPath = [path[0]]
         for points in path:
             if (last_vector[0][0] - last_vector[1][0]) / (last_vector[0][1] - last_vector[1][1]) == \
-                    (last_vector[0][0] - points[0]) / (last_vector[0] - [1] - points[1]):
+                    (last_vector[0][0] - points[0]) / (last_vector[0][1] - points[1]):
                 vectors[i][1] = points
             else:
                 vectors.append((last_point)(points))
@@ -68,4 +70,3 @@ class Maze_Finder:
                 newPath.append(points)
             last_point = points
         return newPath
-

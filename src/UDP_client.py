@@ -20,7 +20,13 @@ class UDP_Client():
 
             # Send data
             maze = maze.tolist()
-            data = {'start': start, 'goal' : goal, 'maze': maze}
+            #data = {['start': start, 'goal': goal, 'maze': maze]}
+            data = {}
+
+            data["start"] = start
+            data["goal"] = goal
+            data["maze"] = maze
+
             json_data = json.dumps(data)
 
             print(json_data)

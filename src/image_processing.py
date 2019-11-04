@@ -60,7 +60,7 @@ class BallTracking(object):
         """
         _, frame = self.cap.read()
 
-        roi = frame[15:360, 90:480]
+        roi = frame[64:464, 116:516]
         frame = cv2.bitwise_and(roi, roi)
 
         blurred = cv2.GaussianBlur(frame, (11, 11), 0)
