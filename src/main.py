@@ -16,6 +16,7 @@ from image_processing import BallTracking
 from modbus_client import ModbusClient
 from UDP_client import UDP_Client
 from maze_finder import Maze_Finder
+import threading
 
 # Addresses for Modbus
 addresses = {
@@ -27,12 +28,10 @@ addresses = {
 }
 dimentions = (640, 480)
 
-
-
 # Main loop
 if __name__ == '__main__':
     cap = cv2.VideoCapture(1)
-    cap.set(propId=3, value=dimentions[0])
+    cap.set(propId=3, value=640)
     cap.set(propId=4, value=dimentions[1])
 
     # Create objects
@@ -42,27 +41,26 @@ if __name__ == '__main__':
     maze_finding = Maze_Finder()
     UDP_Client = UDP_Client()
 
-
     # get a path from the astar algorythm and send path to plc
-    path = maze_finding.findPath(UDP_Client, cap, tuple(ball_tracking.get_coordinates()),
-                                 (350, 350))
+    path = maze_finding.findPath(UDP_Client, cap, (ball_tracking.get_coordinates()), (350, 100))
 
     client.write_int(value=path[0][0], address=addresses['set point X'])
     client.write_int(value=path[0][1], address=addresses['set point Y'])
 
     # Send data over Modbus while the Modbus connection is active
-    i=1
+    i = 1
     last_pos_state = client.read_int(addresses['in position'])
     while client.is_connected():
         ball_coordinates = ball_tracking.get_coordinates()
         client.write_int(value=ball_coordinates[0], address=addresses['Ball X'])
         client.write_int(value=ball_coordinates[1], address=addresses['Ball Y'])
-
-        if client.read_int(addresses['in position'])!= last_pos_state:
+        print(client.read_int(addresses['in position']))
+        if client.read_int(addresses['in position']) != last_pos_state:
             print(path[i])
             client.write_int(value=path[i][1], address=addresses['set point X'])
             client.write_int(value=path[i][0], address=addresses['set point Y'])
-            i += 1
+            if i < len(path) - 1:
+                i += 1
         else:
             print("not reached ")
 

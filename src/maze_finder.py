@@ -1,10 +1,17 @@
 import cv2
 import numpy as np
 
-""" locates a maze in a spesific color and sends it to a pathfinding server, then it returns the resulting path"""
+""" locates a maze in a spesific color and sends it to a pathfinding server, then it returns the resulting path
+    author: fredborg
+    version: 1
+"""
 
 
 class Maze_Finder:
+    ''' sends an maze to a star server and then the a star solves that. returns the astar and then returns the path
+
+    '''
+
     def findPath(self, client, cap, ballPos, goalPos):
 
         dimentions = (400, 400)
@@ -13,60 +20,50 @@ class Maze_Finder:
         _, frame = cap.read()
         roi = frame[64:464, 116:516]
         frame = cv2.bitwise_and(roi, roi)
-        hsv = cv2.cvtColor(frame, cv2.COLOR_HSV2BGR)
+        print(frame.size)
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
         # find the countrours
-        smalColor = np.array([93, 68, 42])
-        bigColor = np.array([117, 255, 255])
+        smalColor = np.array([100, 79, 98])
+        bigColor = np.array([119, 183, 200])
         blured = cv2.GaussianBlur(hsv, (5, 5), 5)
         mask = cv2.inRange(blured, smalColor, bigColor)
-        contours, hirarky = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
+        contours, hirarky = cv2.findContours(mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        self.showImage(frame, mask)
         # sort the countrours and discard the smalest ones.
         sortedContour = []
         for contour in contours:
-            if cv2.contourArea(contour) > 10:
+            if cv2.contourArea(contour) > 50:
                 sortedContour.append(contour)
         cv2.drawContours(frame, sortedContour, -1, (0, 255, 0), thickness=1)
 
-        # set up walls in the maze
-        white = np.zeros(shape=[len(frame) - 1, len(frame[0] - 1)], dtype=np.uint8)
-        cv2.fillPoly(white, sortedContour, (1))
-        cv2.fillPoly(frame, sortedContour, (255, 0, 0))
+        # # set up walls in the maze
+        whiteMask = np.zeros(shape=frame.shape, dtype=np.uint8)
+        mask = cv2.resize(mask,(100,100))
+
+
+
+        # cv2.drawContours(whiteMask, sortedContour, -1, (1), thickness=3)
+        # cv2.fillPoly(whiteMask, sortedContour, 1)
+        cv2.fillPoly(frame, sortedContour, (0, 255, 0))
 
         # send the maze to the pathfinding and return the result if anny
-        white = cv2.resize(white, (100, 100))
 
         ballPos = ([integer // 4 for integer in ballPos])
         goalPos = ([integer // 4 for integer in goalPos])
 
-        path = client.send_data_to_Astar(white, ballPos, goalPos)
 
-        resizedPath = ([
-            tuple([int(point[0] * (dimentions[0] / 100)), int(point[1] * (dimentions[1] / 100))]) for point in path])
+        path = client.send_data_to_Astar(mask, ballPos, goalPos)
 
-        cv2.imshow("frame", frame)
-        cv2.imshow("frame1", white)
-        if not resizedPath is None:
+        #self.showImage(frame, whiteMask)
+        if not path is None:
+            resizedPath = (
+                [list([int(point[0] * (dimentions[0] / 100)), int(point[1] * (dimentions[1] / 100))]) for point in
+                 path])
             resizedPath.reverse()
             print(resizedPath)
             return (resizedPath)
 
-    '''finds all points on the same line and simplifies the path to only points that are not on the same line'''
-
-    def reduce_path(self, path):
-        last_vector = [path[0], path[1]]
-        last_point = path[0]
-        vectors = [(last_vector)]
-        i = 0
-        newPath = [path[0]]
-        for points in path:
-            if (last_vector[0][0] - last_vector[1][0]) / (last_vector[0][1] - last_vector[1][1]) == \
-                    (last_vector[0][0] - points[0]) / (last_vector[0][1] - points[1]):
-                vectors[i][1] = points
-            else:
-                vectors.append((last_point)(points))
-                last_vector = ((last_point)(points))
-                newPath.append(points)
-            last_point = points
-        return newPath
+    def showImage(self, frame1, frame2):
+        cv2.imshow("frame", frame1)
+        cv2.imshow("frame1", frame2)
