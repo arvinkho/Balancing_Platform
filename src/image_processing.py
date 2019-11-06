@@ -47,6 +47,9 @@ class BallTracking(object):
         elif color == "pink":
             self.lower_color = np.array([156, 34, 119])
             self.upper_color = np.array([179, 255, 255])
+        elif color == "laser_pointer":
+            self.lower_color = np.array([120, 19, 170])
+            self.upper_color = np.array([179, 255, 255])
 
     def get_coordinates(self):
         """
@@ -60,7 +63,7 @@ class BallTracking(object):
         """
         _, frame = self.cap.read()
 
-        roi = frame[71:457, 102:531]
+        roi = frame[59:459, 133:533]
         frame = cv2.bitwise_and(roi, roi)
 
         blurred = cv2.GaussianBlur(frame, (5, 5), 0)

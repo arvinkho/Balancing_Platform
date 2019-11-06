@@ -35,7 +35,7 @@ while True:
     # get the next frame
     _, frame = cap.read()
 
-    blurred = cv2.GaussianBlur(frame, (11, 11), 0)
+    blurred = cv2.GaussianBlur(frame, (5, 5), 0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
 
     # get values from the track bar
@@ -70,7 +70,7 @@ while True:
             cY = int(M["m01"] / M["m00"])
             center = (cX, cY)
 
-        if radius > 10:
+        if radius > 5:
             cv2.circle(frame, (int(x), int(y)), int(radius), (255, 0, 255), 2)
             cv2.circle(frame, center, 5, (0, 0, 255), -1)
 
