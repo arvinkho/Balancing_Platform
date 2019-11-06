@@ -30,10 +30,10 @@ class UDP_Client():
             json_data = json.dumps(data)
 
             print(json_data)
-            sock.sendto(json_data.encode(), server_address)
+            self.sock.sendto(json_data.encode(), self.server_address)
             # Receive response
             print(sys.stderr, 'waiting to receive')
-            json_data, server = sock.recvfrom(16384)
+            json_data, server = self.sock.recvfrom(16384)
             path = json_data.decode()
             if "no path" in path:
                 return None
@@ -49,5 +49,5 @@ class UDP_Client():
                 return decodedpath
         finally:
             print(sys.stderr, 'closing socket')
-            sock.close()
+            self.sock.close()
 

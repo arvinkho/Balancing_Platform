@@ -16,7 +16,6 @@ from image_processing import BallTracking
 from modbus_client import ModbusClient
 from UDP_client import UDP_Client
 from maze_finder import Maze_Finder
-import threading
 
 # Addresses for Modbus
 addresses = {
@@ -30,9 +29,9 @@ dimentions = (640, 480)
 
 # Main loop
 if __name__ == '__main__':
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
     cap.set(propId=3, value=640)
-    cap.set(propId=4, value=dimentions[1])
+    cap.set(propId=4, value=480)
 
     # Create objects
 
@@ -42,7 +41,7 @@ if __name__ == '__main__':
     UDP_Client = UDP_Client()
 
     # get a path from the astar algorythm and send path to plc
-    path = maze_finding.findPath(UDP_Client, cap, (ball_tracking.get_coordinates()), (350, 100))
+    path = maze_finding.findPath(UDP_Client, cap, (40, 40), (350, 350))
 
     client.write_int(value=path[0][0], address=addresses['set point X'])
     client.write_int(value=path[0][1], address=addresses['set point Y'])
@@ -65,7 +64,7 @@ if __name__ == '__main__':
             print("not reached ")
 
         last_pos_state = client.read_int(addresses['in position'])
-        key = cv2.waitKey(50) & 0xFF
+        key = cv2.waitKey(1) & 0xFF
         # If the escape key is pressed, stop the ball tracking.
         if key == 27:
             ball_tracking.stop()

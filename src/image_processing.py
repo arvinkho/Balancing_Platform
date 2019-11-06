@@ -45,7 +45,7 @@ class BallTracking(object):
             self.lower_color = np.array([0, 42, 142])
             self.upper_color = np.array([13, 255, 255])
         elif color == "pink":
-            self.lower_color = np.array([167, 85, 142])
+            self.lower_color = np.array([155, 60, 22])
             self.upper_color = np.array([179, 255, 255])
 
     def get_coordinates(self):
@@ -60,7 +60,7 @@ class BallTracking(object):
         """
         _, frame = self.cap.read()
 
-        roi = frame[64:464, 116:516]
+        roi = frame[59:459, 133:533]
         frame = cv2.bitwise_and(roi, roi)
 
         blurred = cv2.GaussianBlur(frame, (11, 11), 0)

@@ -18,16 +18,18 @@ class Maze_Finder:
 
         # get the frame and set the collors
         _, frame = cap.read()
-        roi = frame[64:464, 116:516]
+        roi = frame[59:459, 133:533]
         frame = cv2.bitwise_and(roi, roi)
         print(frame.size)
-        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
         # find the countrours
-        smalColor = np.array([100, 79, 98])
-        bigColor = np.array([119, 183, 200])
-        blured = cv2.GaussianBlur(hsv, (5, 5), 5)
-        mask = cv2.inRange(blured, smalColor, bigColor)
+        smalColor = np.array([100, 5, 64])
+        bigColor = np.array([160, 188, 255])
+        blurred = cv2.GaussianBlur(frame, (11, 11), 0)
+        hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+        mask = cv2.inRange(hsv, smalColor, bigColor)
+        mask = cv2.erode(mask, None, iterations=2)
+        mask = cv2.dilate(mask, None, iterations=2)
         contours, hirarky = cv2.findContours(mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
         self.showImage(frame, mask)
         # sort the countrours and discard the smalest ones.
@@ -39,7 +41,7 @@ class Maze_Finder:
 
         # # set up walls in the maze
         whiteMask = np.zeros(shape=frame.shape, dtype=np.uint8)
-        mask = cv2.resize(mask,(100,100))
+        mask = cv2.resize(mask, (100, 100))
 
 
 
