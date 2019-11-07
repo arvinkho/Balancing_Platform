@@ -29,7 +29,7 @@ class Maze_Finder:
         hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv, smalColor, bigColor)
         mask = cv2.erode(mask, None, iterations=2)
-        mask = cv2.dilate(mask, None, iterations=2)
+        mask = cv2.dilate(mask, None, iterations=12)
         contours, hirarky = cv2.findContours(mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
         self.showImage(frame, mask)
         # sort the countrours and discard the smalest ones.

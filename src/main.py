@@ -41,7 +41,7 @@ if __name__ == '__main__':
     UDP_Client = UDP_Client()
 
     # get a path from the astar algorythm and send path to plc
-    path = maze_finding.findPath(UDP_Client, cap, (40, 40), (350, 350))
+    path = maze_finding.findPath(UDP_Client, cap, (60, 60), (100, 350))
 
     client.write_int(value=path[0][0], address=addresses['set point X'])
     client.write_int(value=path[0][1], address=addresses['set point Y'])
@@ -56,8 +56,8 @@ if __name__ == '__main__':
         print(client.read_int(addresses['in position']))
         if client.read_int(addresses['in position']) != last_pos_state:
             print(path[i])
-            client.write_int(value=path[i][1], address=addresses['set point X'])
-            client.write_int(value=path[i][0], address=addresses['set point Y'])
+            client.write_int(value=path[i][0], address=addresses['set point X'])
+            client.write_int(value=path[i][1], address=addresses['set point Y'])
             if i < len(path) - 1:
                 i += 1
         else:
