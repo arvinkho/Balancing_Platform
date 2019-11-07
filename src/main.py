@@ -14,8 +14,8 @@ IP-address of PLC: 158.38.140.73, port: 503.
 import cv2
 from image_processing import BallTracking
 from modbus_client import ModbusClient
-from UDP_client import UDP_Client
-from maze_finder import Maze_Finder
+from UDP_client import UDPClient
+from maze_finder import MazeFinder
 
 # Addresses for Modbus
 addresses = {
@@ -25,7 +25,8 @@ addresses = {
     'set point Y': 12294,
     'in position': 12296
 }
-dimentions = (640, 480)
+roi_size_x = (133, 533)
+roi_size_y = (59, 459)
 
 # Main loop
 if __name__ == '__main__':
@@ -36,12 +37,12 @@ if __name__ == '__main__':
     # Create objects
 
     client = ModbusClient()
-    ball_tracking = BallTracking(capture=cap, watch=True, color="pink")
-    maze_finding = Maze_Finder()
-    UDP_Client = UDP_Client()
+    ball_tracking = BallTracking(capture=cap, watch=True, roi_size_x=roi_size_x, roi_size_y=roi_size_y, color="pink")
+    UDP_Client = UDPClient()
+    maze_finding = MazeFinder(client=UDP_Client, capture=cap, roi_size_x=roi_size_x, roi_size_y=roi_size_y)
 
-    # get a path from the astar algorythm and send path to plc
-    path = maze_finding.findPath(UDP_Client, cap, (60, 60), (100, 350))
+    # get a path from the astar algorithm and send path to plc
+    path = maze_finding.find_path((60, 60), (100, 350))
 
     client.write_int(value=path[0][0], address=addresses['set point X'])
     client.write_int(value=path[0][1], address=addresses['set point Y'])
