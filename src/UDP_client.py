@@ -8,7 +8,8 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server_address = ('localhost', 1337)
 message = 'This is the message.  It will be repeated.'
 
-class UDP_Client():
+class UDPClient(object):
+
     def __init__(self):
         # Create a UDP socket
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

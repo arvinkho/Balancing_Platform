@@ -18,7 +18,7 @@ import numpy as np
 
 class BallTracking(object):
 
-    def __init__(self, capture, watch, color="neon_yellow"):
+    def __init__(self, capture, watch, roi_size_x, roi_size_y, color="neon_yellow"):
         """
         Finds the largest object within the HSV
         color limits. Returns the centroid coordinates
@@ -33,6 +33,8 @@ class BallTracking(object):
         self.lower_color = np.array([23, 78, 115])
         self.upper_color = np.array([75, 255, 255])
         self.set_color(color)
+        self.roi_size_x = roi_size_x
+        self.roi_size_y = roi_size_y
 
     def set_color(self, color="neon_yellow"):
         """
@@ -60,7 +62,7 @@ class BallTracking(object):
         """
         _, frame = self.cap.read()
 
-        roi = frame[59:459, 133:533]
+        roi = frame[self.roi_size_y[0]:self.roi_size_y[1], self.roi_size_x[0]:self.roi_size_x[1]]
         frame = cv2.bitwise_and(roi, roi)
 
         blurred = cv2.GaussianBlur(frame, (11, 11), 0)
