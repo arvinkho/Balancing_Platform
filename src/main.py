@@ -25,8 +25,8 @@ addresses = {
     'set point Y': 12294,
     'in position': 12296
 }
-roi_size_x = (133, 533)
-roi_size_y = (59, 459)
+roi_size_x = (140, 540)
+roi_size_y = (65, 465)
 
 # Main loop
 if __name__ == '__main__':
