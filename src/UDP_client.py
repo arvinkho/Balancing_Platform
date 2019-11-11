@@ -48,7 +48,11 @@ class UDPClient(object):
                     str = item.split(",")
                     decodedpath.append((int(str[0]), int(str[1])))
                 return decodedpath
-        finally:
+
+        except:
             print(sys.stderr, 'closing socket')
             self.sock.close()
 
+    def close_socket(self):
+        print(sys.stderr, 'closing socket')
+        self.sock.close()
