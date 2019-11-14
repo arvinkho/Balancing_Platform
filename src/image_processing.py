@@ -14,11 +14,12 @@ coordinates of the centroid of the masked contour.
 
 import cv2
 import numpy as np
+import time
 
 
 class BallTracking(object):
 
-    def __init__(self, capture, watch, roi_size_x, roi_size_y, color="neon_yellow"):
+    def __init__(self, capture, watch, roi_size_x=(128, 528), roi_size_y=(40, 440), color="neon_yellow"):
         """
         Finds the largest object within the HSV
         color limits. Returns the centroid coordinates
@@ -47,7 +48,7 @@ class BallTracking(object):
             self.lower_color = np.array([0, 42, 142])
             self.upper_color = np.array([13, 255, 255])
         elif color == "pink":
-            self.lower_color = np.array([155, 60, 22])
+            self.lower_color = np.array([150, 40, 40])
             self.upper_color = np.array([179, 255, 255])
 
     def get_coordinates(self):
@@ -65,14 +66,14 @@ class BallTracking(object):
         roi = frame[self.roi_size_y[0]:self.roi_size_y[1], self.roi_size_x[0]:self.roi_size_x[1]]
         frame = cv2.bitwise_and(roi, roi)
 
-        blurred = cv2.GaussianBlur(frame, (11, 11), 0)
+        blurred = cv2.GaussianBlur(frame, (5, 5), 0)
         hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
 
         mask = cv2.inRange(hsv, self.lower_color, self.upper_color)
         mask = cv2.erode(mask, None, iterations=2)
-        dilation = cv2.dilate(mask, None, iterations=2)
+        mask = cv2.dilate(mask, None, iterations=2)
 
-        conts = cv2.findContours(dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        conts = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         conts = conts[0]
         center = None
 
@@ -87,22 +88,21 @@ class BallTracking(object):
             if self.frame and radius > 5:
                 cv2.circle(frame, (int(x), int(y)), int(radius), (255, 0, 255), 2)
                 cv2.circle(frame, center, 5, (0, 0, 255), -1)
-                cv2.circle(mask, center, 5, (0, 0, 255), -1)
-                self.watch(frame, dilation)
+                self.watch(frame, mask)
             return center
 
         else:
             if self.frame:
-                self.watch(frame, dilation)
+                self.watch(frame, mask)
             return 0, 0
 
     @staticmethod
-    def watch(frame, dilation):
+    def watch(frame, mask):
         """
         Show the captured image and the masked image.
         """
         cv2.imshow("Frame", frame)
-        cv2.imshow("Mask", dilation)
+        cv2.imshow("Mask", mask)
 
     def stop(self):
         """
@@ -119,13 +119,15 @@ if __name__ == '__main__':
     cap = cv2.VideoCapture(1)
     cap.set(propId=3, value=640)
     cap.set(propId=4, value=480)
-    ballTracking = BallTracking(cap, watch=True, color="neon_yellow")
-
+    ballTracking = BallTracking(cap, watch=False, color="pink")
+    prev_time = 0
     while True:
+        current_time = time.time()
         coordinates = ballTracking.get_coordinates()
-        print(coordinates)
-
-        key = cv2.waitKey(5) & 0xFF
+        key = cv2.waitKey(1) & 0xFF
         if key == 27:
             ballTracking.stop()
             break
+        print((current_time - prev_time) * 1000)
+        prev_time = current_time
+

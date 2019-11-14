@@ -14,7 +14,6 @@ from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadBuilder
 from pymodbus.payload import BinaryPayloadDecoder
 
-
 class ModbusClient(object):
 
     def __init__(self, ip='158.38.140.73'):
@@ -35,7 +34,7 @@ class ModbusClient(object):
 
     def write_int(self, value, address):
         """
-        Writes an 16-bit integer value to the given address on the PLC.
+        Writes a 16-bit integer value to the given address on the PLC.
         :param value: The integer value to send
         :param address: The I/O address on the PLC to write the value to
         :return: True if successful, false if not
@@ -48,7 +47,7 @@ class ModbusClient(object):
 
     def write_float(self, value, address):
         """
-        Writes an 32-bit float value to the given address on the PLC.
+        Writes a 32-bit float value to the given address on the PLC.
         :param value: The float value to send
         :param address: The I/O address on the PLC to write the value to
         :return: True if successful, false if not
@@ -67,7 +66,11 @@ class ModbusClient(object):
         :return: the read value
         """
         response = self.client.read_holding_registers(address, size, unit=1)
-        return response.registers
+        decoder = BinaryPayloadDecoder.fromRegisters(response.registers,
+                                                     byteorder=Endian.Big,
+                                                     wordorder=Endian.Little)
+        value = decoder.decode_16bit_int()
+        return value
 
     def read_float(self, address=12290, size=2):
         """
@@ -94,7 +97,7 @@ class ModbusClient(object):
 # Simple example to show the functionality of this class
 if __name__ == '__main__':
     client = ModbusClient()
-
-    client.write_int(value=69, address=12288)
+    client.write_int(value=1000, address=12288)
     while client.is_connected():
         print(client.read_int(address=12288))
+

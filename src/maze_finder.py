@@ -28,7 +28,6 @@ class MazeFinder(object):
         _, frame = self.cap.read()
         roi = frame[self.roi_size_y[0]:self.roi_size_y[1], self.roi_size_x[0]:self.roi_size_x[1]]
         frame = cv2.bitwise_and(roi, roi)
-        print(frame.size)
 
         # find the countrours
         small_color = np.array([100, 5, 64])
@@ -39,7 +38,7 @@ class MazeFinder(object):
         mask = cv2.erode(mask, None, iterations=2)
         mask = cv2.dilate(mask, None, iterations=12)
         contours, hierarchy = cv2.findContours(mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-        self.show_image(frame, mask)
+        # self.show_image(frame, mask)
 
         # sort the countrours and discard the smalest ones.
         sorted_contour = []

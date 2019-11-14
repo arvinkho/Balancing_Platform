@@ -30,7 +30,7 @@ class UDPClient(object):
 
             json_data = json.dumps(data)
 
-            print(json_data)
+            #print(json_data)
             self.sock.sendto(json_data.encode(), self.server_address)
             # Receive response
             print(sys.stderr, 'waiting to receive')

@@ -15,7 +15,7 @@ def nothing(x):
     pass
 
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 cap.set(propId=3, value=640)
 cap.set(propId=4, value=480)
 
