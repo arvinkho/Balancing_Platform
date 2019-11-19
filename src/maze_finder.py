@@ -36,7 +36,7 @@ class MazeFinder(object):
         hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv, small_color, big_color)
         mask = cv2.erode(mask, None, iterations=2)
-        mask = cv2.dilate(mask, None, iterations=12)
+        mask = cv2.dilate(mask, None, iterations=10)
         contours, hierarchy = cv2.findContours(mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
         # self.show_image(frame, mask)
 
@@ -71,7 +71,7 @@ class MazeFinder(object):
                 [list([int(point[0] * (dimensions[0] / 100)), int(point[1] * (dimensions[1] / 100))]) for point in
                  path])
             resized_path.reverse()
-            print(resized_path)
+            # print(resized_path)
             return resized_path
 
     def show_image(self, frame1, frame2):

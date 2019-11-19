@@ -19,7 +19,8 @@ import time
 
 class BallTracking(object):
 
-    def __init__(self, capture, watch, roi_size_x=(128, 528), roi_size_y=(40, 440), color="neon_yellow"):
+    def __init__(self, capture, watch, roi_size_x=(128, 528), roi_size_y=(40, 440),
+                 color="neon_yellow"):
         """
         Finds the largest object within the HSV
         color limits. Returns the centroid coordinates
@@ -29,7 +30,7 @@ class BallTracking(object):
         be shown. True: show picture.
         :param color: pre-defined upper and lower HSV values
         """
-        self.frame = watch
+        self.draw_image = watch
         self.cap = capture
         self.lower_color = np.array([23, 78, 115])
         self.upper_color = np.array([75, 255, 255])
@@ -85,16 +86,18 @@ class BallTracking(object):
             cY = int(M["m01"] / M["m00"])
             center = (cX, cY)
 
-            if self.frame and radius > 5:
+            if self.draw_image and radius > 5:
                 cv2.circle(frame, (int(x), int(y)), int(radius), (255, 0, 255), 2)
                 cv2.circle(frame, center, 5, (0, 0, 255), -1)
                 self.watch(frame, mask)
             return center
 
         else:
-            if self.frame:
+            if self.draw_image:
                 self.watch(frame, mask)
             return 0, 0
+
+
 
     @staticmethod
     def watch(frame, mask):
@@ -109,7 +112,7 @@ class BallTracking(object):
         Shut down the video capturing and close all
         the opened windows (if any).
         """
-        self.cap.release()
+        self.cap.stop()
         cv2.destroyAllWindows()
 
 

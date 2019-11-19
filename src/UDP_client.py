@@ -39,11 +39,11 @@ class UDPClient(object):
             if "no path" in path:
                 return None
             else:
-                path =path.lstrip("[[")
+                path = path.lstrip("[[")
                 path = path.rstrip("]]")
                 path = path.split("],[")
 
-                decodedpath=[]
+                decodedpath = []
                 for item in path:
                     str = item.split(",")
                     decodedpath.append((int(str[0]), int(str[1])))
