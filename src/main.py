@@ -27,8 +27,8 @@ addresses = {
     'set point Y': 12294,
     'in position': 12296,
     'find new path': 12298,
-    'new set point X': 12300,
-    'new set point Y': 12302
+    'new goal point X': 12300,
+    'new goal point Y': 12302
 }
 roi_size_x = (128, 528)
 roi_size_y = (40, 440)
@@ -64,8 +64,8 @@ if __name__ == '__main__':
         if client.read_int(addresses['find new path']) > 0:
             print("sleeping")
             time.sleep(3)
-            new_sp_x = client.read_int(address=addresses['new set point X'])
-            new_sp_y = client.read_int(address=addresses['new set point Y'])
+            new_sp_x = client.read_int(address=addresses['new goal point X'])
+            new_sp_y = client.read_int(address=addresses['new goal point Y'])
             print(new_sp_x)
             print(new_sp_y)
             path = maze_finding.find_path((ball_coordinates[0], ball_coordinates[1]), (new_sp_x, new_sp_y))
@@ -73,8 +73,8 @@ if __name__ == '__main__':
 
         if (client.read_int(addresses['in position']) != last_pos_state) and path is not None:
 
-            new_sp_x = client.read_int(address=addresses['new set point X'])
-            new_sp_y = client.read_int(address=addresses['new set point Y'])
+            new_sp_x = client.read_int(address=addresses['new goal point X'])
+            new_sp_y = client.read_int(address=addresses['new goal point Y'])
 
             new_path = maze_finding.find_path((ball_coordinates[0], ball_coordinates[1]), (new_sp_x, new_sp_y))
 
