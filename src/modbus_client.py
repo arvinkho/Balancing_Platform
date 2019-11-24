@@ -55,7 +55,7 @@ class ModbusClient(object):
         builder = BinaryPayloadBuilder(byteorder=Endian.Big)
         builder.add_32bit_float(value)
         payload = builder.build()
-        result = self.client.write_register(address, payload, skip_encode=True, unit=1)
+        result = self.client.write_registers(address, payload, skip_encode=True, unit=1)
         return result
 
     def read_int(self, address=12288, size=1):
@@ -98,6 +98,10 @@ class ModbusClient(object):
 if __name__ == '__main__':
     client = ModbusClient()
     client.write_int(value=1000, address=12288)
+    client.write_int(value=69, address=12289)
+    client.write_int(value=12312, address=12290)
     while client.is_connected():
         print(client.read_int(address=12288))
+        print(client.read_int(address=12289))
+        print(client.read_int(address=12290))
 
