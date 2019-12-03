@@ -41,6 +41,7 @@ class BallTracking(object):
     def set_color(self, color="neon_yellow"):
         """
         Set the color of the object to track.
+        :param color: the color of the system
         """
         if color == "neon_yellow":
             self.lower_color = np.array([23, 78, 115])
@@ -103,6 +104,8 @@ class BallTracking(object):
     def watch(frame, mask):
         """
         Show the captured image and the masked image.
+        :param frame: the frame that is to be shown.
+        :param mask: the mask that is to be shown.
         """
         cv2.imshow("Frame", frame)
         cv2.imshow("Mask", mask)

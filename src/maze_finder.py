@@ -10,18 +10,29 @@ import numpy as np
 class MazeFinder(object):
 
     def __init__(self, client, capture, roi_size_x, roi_size_y):
+        '''
+        creates an instance of the maze finder and defines the size of the window to be used.
+        in adition it defines the capture frame and the client that we send the data to for solving.
+        :param client: the UDP client that the java dock comunicates.
+        :param capture: the capture frame of the camera.
+        :param roi_size_x: the downsized x dimentions of the frame.
+        :param roi_size_y: the downsized x dimentions of the frame.
+        '''
         self.client = client
         self.cap = capture
         self.roi_size_x = roi_size_x
         self.roi_size_y = roi_size_y
 
 
-    ''' 
-    sends an maze to a star server and then the a star solves that. returns the astar and then returns the path
-    '''
+
 
     def find_path(self, ball_pos, goal_pos):
-
+        '''
+            sends an maze to a star server and then the a star solves that. returns the astar and then returns the path
+            :param ball_pos the strart possition for the maze solving
+            :param goal_pos the end possition for the maze solving
+            :return an array of points representing the maze form start to stopp.
+        '''
         if ball_pos != goal_pos:
             dimensions = (400, 400)
 
@@ -76,5 +87,11 @@ class MazeFinder(object):
                 return resized_path
 
     def show_image(self, frame1, frame2):
+        '''
+        if called showes the image on the users computer screen.
+        :param frame1: the first frame to bre shown, next to frame 2.
+        :param frame2: the second frame to bre shown, next to frame 1.
+        :return:
+        '''
         cv2.imshow("frame", frame1)
         cv2.imshow("frame1", frame2)
