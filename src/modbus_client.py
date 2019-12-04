@@ -13,6 +13,7 @@ from pymodbus.client.sync import ModbusTcpClient
 from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadBuilder
 from pymodbus.payload import BinaryPayloadDecoder
+import time
 
 class ModbusClient(object):
 
@@ -105,4 +106,3 @@ if __name__ == '__main__':
         print(client.read_int(address=12288))
         print(client.read_int(address=12289))
         print(client.read_int(address=12290))
-
