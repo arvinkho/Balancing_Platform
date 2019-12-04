@@ -20,6 +20,7 @@ class ModbusClient(object):
         """
         Establishes a TCP connection with the PLC.
         Can read and write to all the available I/O.
+        :param the IP address of the Modbus Server.
         """
         self.ip = ip
         self.client = ModbusTcpClient(self.ip)
