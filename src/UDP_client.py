@@ -16,22 +16,22 @@ message = 'This is the message.  It will be repeated.'
 class UDPClient(object):
 
     def __init__(self):
-        '''
+        """
         generates a UDP socet with a local host on port 1337
-        '''
+        """
         # Create a UDP socket
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.server_address = ('localhost', 1337)
 
 
     def send_data_to_Astar(self, maze, start, goal):
-        '''
+        """
         send's the maze it recived to a UDP server
         :param maze: the maze to be inspected and solved.
         :param start: the start of the maze.
         :param goal: the end of the maze.
         :return:
-        '''
+        """
         try:
             #build a JSON object
             maze = maze.tolist()
@@ -67,9 +67,9 @@ class UDPClient(object):
             self.sock.close()
 
     def close_socket(self):
-        '''
+        """
         closes the socket that the UDP client is using to send data.
         :return:
-        '''
+        """
         print(sys.stderr, 'closing socket')
         self.sock.close()
