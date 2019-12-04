@@ -28,9 +28,10 @@ addresses = {
     'in position': 12292,
     'find new path': 12293,
     'new goal point X': 12294,
-    'new goal point Y': 12295
+    'new goal point Y': 12295,
+    'valid position': 12296
 }
-roi_size_x = (128, 528)
+roi_size_x = (143, 543)
 roi_size_y = (40, 440)
 
 # Main loop
@@ -38,20 +39,34 @@ if __name__ == '__main__':
 
     # Create objects
 
-    cap = VideoStream(src=1, height=480, width=640)
+    cap = VideoStream(src=0, height=480, width=640)
     client = ModbusClient()
     ball_tracking = BallTracking(capture=cap, watch=False, roi_size_x=roi_size_x, roi_size_y=roi_size_y, color="pink")
     UDP_Client = UDPClient()
     maze_finding = MazeFinder(client=UDP_Client, capture=cap, roi_size_x=roi_size_x, roi_size_y=roi_size_y)
 
     # get a path from the astar algorithm and send path to plc
-    path = maze_finding.find_path((60, 60), (200, 200))
-    client.write_int(value=path[0][0], address=addresses['set point X'])
-    client.write_int(value=path[0][1], address=addresses['set point Y'])
-    print(path)
+
     i = 1
     last_pos_state = client.read_int(addresses['in position'])
     prev_time = 0
+    path = None
+    old_end_point = None
+
+    ball_coordinates = ball_tracking.get_coordinates()
+    if ball_coordinates[0] >= 370:
+        client.write_int(value=370, address=addresses['set point X'])
+    elif ball_coordinates[0] <= 30:
+        client.write_int(value=30, address=addresses['set point X'])
+    else:
+        client.write_int(value=ball_coordinates[0], address=addresses['set point X'])
+
+    if ball_coordinates[1] >= 370:
+        client.write_int(value=370, address=addresses['set point Y'])
+    elif ball_coordinates[1] <= 30:
+        client.write_int(value=30, address=addresses['set point Y'])
+    else:
+        client.write_int(value=ball_coordinates[1], address=addresses['set point Y'])
 
     # Send data over Modbus while the Modbus connection is active
     while client.is_connected():
@@ -60,15 +75,41 @@ if __name__ == '__main__':
 
         client.write_int(value=ball_coordinates[0], address=addresses['Ball X'])
         client.write_int(value=ball_coordinates[1], address=addresses['Ball Y'])
+        #print(ball_coordinates)
 
-        if (client.read_int(addresses['in position']) != last_pos_state) and path is not None:
+        new_gp_x = client.read_int(address=addresses['new goal point X'])
+        new_gp_y = client.read_int(address=addresses['new goal point Y'])
+        new_end_point = (new_gp_x, new_gp_y)
 
-            new_sp_x = client.read_int(address=addresses['new goal point X'])
-            new_sp_y = client.read_int(address=addresses['new goal point Y'])
+        #print("New end point x: " + str(new_sp_x))
+        #print("New end point y: " + str(new_sp_y))
+        if new_gp_x <= 30 or new_gp_x >= 370 or new_gp_y <= 30 or new_gp_y >= 370:
+            valid_path = False
+            client.write_int(address=addresses['valid position'], value=0)
+        else:
+            valid_path = True
+            client.write_int(address=addresses['valid position'], value=1)
 
-            if new_sp_y > 0 or new_sp_x > 0 or ball_coordinates == (new_sp_x, new_sp_y):
-                new_path = maze_finding.find_path((ball_coordinates[0], ball_coordinates[1]), (new_sp_x, new_sp_y))
+        if new_end_point != old_end_point and valid_path:
+            path = None
+            i = 1
 
+        if client.read_int(addresses['in position']) != last_pos_state:
+            print("Searching for path")
+            # Set the first path
+            if path is None and valid_path:
+                path = maze_finding.find_path((ball_coordinates[0], ball_coordinates[1]), new_end_point)
+                if path is not None:
+                    client.write_int(value=path[1][0], address=addresses['set point X'])
+                    client.write_int(value=path[1][1], address=addresses['set point Y'])
+                    print("First path found")
+                    print(ball_coordinates)
+                    print(path)
+
+            # Get a new path
+            elif valid_path and path is not None:
+                new_path = maze_finding.find_path((ball_coordinates[0], ball_coordinates[1]), (new_gp_x, new_gp_y))
+                print(ball_coordinates)
                 # if (new_path[1:] == path[i + 1:] and i < len(path) - 1) or new_path is None:
                 #     i += 1
                 #     if abs(new_path[1][0] - path[i][0]) < 10 and abs(new_path[1][1] - path[i][1]) < 10:
@@ -79,13 +120,12 @@ if __name__ == '__main__':
 
                 print("Old path: " + str(path))
                 print("New path: " + str(new_path))
-                if new_path is None or new_path == path:
+                if new_path is None or new_path == path and new_end_point == old_end_point:
                     if i < len(path) - 1:
                         i += 1
-                elif i < len(path) -1 and new_path[1] == path[i + 1]:
-                    if i < len(path):
-                        i += 1
-                else:
+                elif i < len(path) - 1 and new_path[1] == path[i + 1] and new_end_point == old_end_point:
+                    i += 1
+                elif new_end_point == old_end_point:
                     i = 1
                     path = new_path
                 if i >= len(path):
@@ -93,15 +133,17 @@ if __name__ == '__main__':
 
                 client.write_int(value=path[i][0], address=addresses['set point X'])
                 client.write_int(value=path[i][1], address=addresses['set point Y'])
-                # if i < len(path) - 1:
-                #     i += 1
-            else:
+
+            # Use the existing path if the new path parameters are illegal
+            elif path is not None and not valid_path:
                 if i < len(path) - 1:
                     i += 1
-                client.write_int(value=path[i][0], address=addresses['set point X'])
-                client.write_int(value=path[i][1], address=addresses['set point Y'])
+                    client.write_int(value=path[i][0], address=addresses['set point X'])
+                    client.write_int(value=path[i][1], address=addresses['set point Y'])
+                    print("New path invalid")
 
         last_pos_state = client.read_int(addresses['in position'])
+        old_end_point = new_end_point
         # print((current_time - prev_time) * 1000)
         prev_time = current_time
         key = cv2.waitKey(1) & 0xFF
@@ -110,4 +152,5 @@ if __name__ == '__main__':
             ball_tracking.stop()
             UDP_Client.close_socket()
             cap.stop()
+            client.close()
             break
