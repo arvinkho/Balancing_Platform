@@ -41,7 +41,7 @@ class MazeFinder(object):
         roi = frame[self.roi_size_y[0]:self.roi_size_y[1], self.roi_size_x[0]:self.roi_size_x[1]]
         frame = cv2.bitwise_and(roi, roi)
 
-        # find the countrours
+        # find the contours
         small_color = np.array([100, 5, 64])
         big_color = np.array([160, 188, 255])
         blurred = cv2.GaussianBlur(frame, (11, 11), 0)
@@ -52,18 +52,16 @@ class MazeFinder(object):
         contours, hierarchy = cv2.findContours(mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
         # self.show_image(frame, mask)
 
-        # sort the countrours and discard the smalest ones.
+        # sort the contours and discard the smallest ones.
         sorted_contour = []
         for contour in contours:
             if cv2.contourArea(contour) > 50:
                 sorted_contour.append(contour)
         cv2.drawContours(frame, sorted_contour, -1, (0, 255, 0), thickness=1)
 
-        # # set up walls in the maze
+        # set up walls in the maze
         whiteMask = np.zeros(shape=frame.shape, dtype=np.uint8)
         mask = cv2.resize(mask, (100, 100))
-
-
 
         # cv2.drawContours(whiteMask, sortedContour, -1, (1), thickness=3)
         # cv2.fillPoly(whiteMask, sortedContour, 1)
@@ -77,10 +75,11 @@ class MazeFinder(object):
         if ball_pos != goal_pos:
             path = self.client.send_data_to_Astar(mask, ball_pos, goal_pos)
         else:
+            path = None
             print("ball pos and goal pos can not be the same!")
 
-        #self.showImage(frame, whiteMask)
-        if not path is None:
+        # self.showImage(frame, whiteMask)
+        if path is not None:
             resized_path = (
                 [list([int(point[0] * (dimensions[0] / 100)), int(point[1] * (dimensions[1] / 100))]) for point in
                  path])
