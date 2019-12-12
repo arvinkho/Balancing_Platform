@@ -12,6 +12,7 @@ coordinates of the centroid of the masked contour.
 @DATE: 2019-10-24
 """
 
+
 import cv2
 import numpy as np
 import time
@@ -37,6 +38,8 @@ class BallTracking(object):
         self.set_color(color)
         self.roi_size_x = roi_size_x
         self.roi_size_y = roi_size_y
+        self.frame = self.cap.read()
+        self.mask = self.cap.read()
 
     def set_color(self, color="neon_yellow"):
         """
@@ -63,19 +66,19 @@ class BallTracking(object):
         :return: If an object is found, return the coordinates (X and Y)
         of the centroid. If no object is found, return (0, 0)
         """
-        _, frame = self.cap.read()
+        _, self.frame = self.cap.read()
 
-        roi = frame[self.roi_size_y[0]:self.roi_size_y[1], self.roi_size_x[0]:self.roi_size_x[1]]
-        frame = cv2.bitwise_and(roi, roi)
+        roi = self.frame[self.roi_size_y[0]:self.roi_size_y[1], self.roi_size_x[0]:self.roi_size_x[1]]
+        self.frame = cv2.bitwise_and(roi, roi)
 
-        blurred = cv2.GaussianBlur(frame, (5, 5), 0)
+        blurred = cv2.GaussianBlur(self.frame, (5, 5), 0)
         hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
 
-        mask = cv2.inRange(hsv, self.lower_color, self.upper_color)
-        mask = cv2.erode(mask, None, iterations=2)
-        mask = cv2.dilate(mask, None, iterations=2)
+        self.mask = cv2.inRange(hsv, self.lower_color, self.upper_color)
+        self.mask = cv2.erode(self.mask, None, iterations=2)
+        self.mask = cv2.dilate(self.mask, None, iterations=2)
 
-        conts = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        conts = cv2.findContours(self.mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         conts = conts[0]
         center = None
 
@@ -88,27 +91,32 @@ class BallTracking(object):
             center = (cX, cY)
 
             if self.draw_image and radius > 5:
-                cv2.circle(frame, (int(x), int(y)), int(radius), (255, 0, 255), 2)
-                cv2.circle(frame, center, 5, (0, 0, 255), -1)
-                self.watch(frame, mask)
+                cv2.circle(self.frame, (int(x), int(y)), int(radius), (255, 0, 255), 2)
+                cv2.circle(self.frame, center, 5, (0, 0, 255), -1)
+                self.watch_frame(self.frame)
+                self.watch_mask(self.mask)
             return center
 
         else:
             if self.draw_image:
-                self.watch(frame, mask)
+                self.watch_frame(self.frame)
+                self.watch_mask(self.mask)
             return 0, 0
 
 
-
-    @staticmethod
-    def watch(frame, mask):
+    def watch_frame(self):
         """
         Show the captured image and the masked image.
         :param frame: the frame that is to be shown.
+        """
+        cv2.imshow("Frame", self.frame)
+
+    def watch_mask(self):
+        """
+        Show the captured image and the masked image.
         :param mask: the mask that is to be shown.
         """
-        cv2.imshow("Frame", frame)
-        cv2.imshow("Mask", mask)
+        cv2.imshow("Mask", self.mask)
 
     def stop(self):
         """

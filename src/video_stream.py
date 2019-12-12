@@ -8,6 +8,7 @@ thread to increase the calculation speed.
 import cv2
 from threading import Thread
 
+
 class VideoStream:
 
     def __init__(self, src=0, height=480, width=640):

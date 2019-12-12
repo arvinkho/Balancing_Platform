@@ -55,7 +55,7 @@ class MazeFinder(object):
         # sort the contours and discard the smallest ones.
         sorted_contour = []
         for contour in contours:
-            if cv2.contourArea(contour) > 50:
+            if cv2.contourArea(contour) > 10:
                 sorted_contour.append(contour)
         cv2.drawContours(frame, sorted_contour, -1, (0, 255, 0), thickness=1)
 

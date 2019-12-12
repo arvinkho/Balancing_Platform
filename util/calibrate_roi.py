@@ -46,7 +46,6 @@ while True:
 
     key = cv2.waitKey(1) & 0xFF
     if key == 27:
-        #TODO: print ROI coordinates
         print("X lower: " + str(roi_x_l))
         print("X upper: " + str(roi_x_h))
         print("Y lower: " + str(roi_y_l))
